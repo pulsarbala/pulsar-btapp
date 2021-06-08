@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Pulsar Bluetooth Remote Access</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<!-- <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,700,500,900' rel='stylesheet' type='text/css'> -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="js/skel.min.js"></script>
+		<script src="js/skel-panels.min.js"></script>
+		<script src="js/init.js"></script>
+		<noscript>
+			<link rel="stylesheet" href="css/skel-noscript.css" />
+			<link rel="stylesheet" href="css/style.css" />
+			<link rel="stylesheet" href="css/style-desktop.css" />
+		</noscript>
+<link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
+
+	<script>
+			var inboundChar;
+			var outboundChar;
+			
+			// Define the codeless UUIDs 
+			var CODELESS_SVC_UUID 	= "866d3b04-e674-40dc-9c05-b7f91bec6e83";
+			var INBOUND_CHAR_UUID 	= "914f8fb9-e8cd-411d-b7d1-14594de45425";
+			var OUTBOUND_CHAR_UUID 	= "3bb535aa-50b2-4fbe-aa09-6b06dc59a404";
+			var CNTRL_CHAR_UUID		= "e2048b39-d4f9-4a45-9f25-1856c10d5639";
+
+			// Display text in log field text area 
+			function log(text)
+			{
+				var textarea = document.getElementById('log');
+				textarea.value += "\n" + text;
+				textarea.scrollTop = textarea.scrollHeight;
+			}
+
+			// Incoming GATT notification was received
+			async function incomingData(event){
+				// Read data from BLE CodeLess peer
+				let readInValue = await outboundChar.readValue();
+				let decoder = new TextDecoder('utf-8');
+				// Log the incoming string (format slightly)
+				log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+			}
+
+			function txtClear(){			
+				document.getElementById('log').value='';
+				document.getElementById('cmd').value='';
+				document.getElementById('cmdw').value='';
+			}
+
+			// Scan, connect and explore CodeLess BLE device
+			async function ble_connect() {			
+				try {
+					// Define a scan filter and prepare for interaction with Codeless Service
+					log('Requesting Bluetooth Device...');
+					device  = await navigator.bluetooth.requestDevice({
+						"acceptAllDevices":true,
+						optionalServices: [CODELESS_SVC_UUID]
+					});		
+					// Connect to device and perform attribute discovery
+					log('Connecting to GATT Server...');
+					server = await device.gatt.connect();
+					log('Exploring CodeLess Service...');
+					const service = await server.getPrimaryService(CODELESS_SVC_UUID);
+					log('  Mapping CodeLess Inbound Command Characteristic...');
+					inboundChar = await service.getCharacteristic(INBOUND_CHAR_UUID);
+					log('  Mapping CodeLess Outbound Command Characteristic...');
+					outboundChar = await service.getCharacteristic(OUTBOUND_CHAR_UUID);
+					log('  Mapping CodeLess Flow Control Characteristic...');
+					const flowcontrolChar = await service.getCharacteristic(CNTRL_CHAR_UUID);
+					// Subscribe to notifications
+					await flowcontrolChar.startNotifications();
+					flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
+					log('Ready to communicate!\n');
+				}
+				catch(error) {
+					log('Failed: ' + error);
+				}
+			}
+
+			// Send an AT command to the CodeLess BLE peer
+			async function sendAT(cmd) {
+				// Display the command in the log
+				log(' -> ' + cmd );
+				// Append an extra character as expected by CodeLess
+				var commandToSend = cmd + "\0";
+				try{
+					let encoder = new TextEncoder('utf-8');
+					// Send command via GATT Write request 
+					await inboundChar.writeValue(encoder.encode(commandToSend));
+				} 
+				catch(error) {
+					log('Failed: ' + error);
+				}
+			}
+
+			// If enter key was pressed by user while editing, send command immediately
+			function wasEnter(elem) {
+				if(event.key === 'Enter') {
+					sendAT(document.getElementById("cmd").value);
+				}
+			}
+
+		</script>		
+	</head>
+	<body class="homepage">
+
+	<!-- Header -->
+		<div id="header">		
+              <div class="image-bg">						
+			            <img src="./images/pulsarlogo.png" alt="Pulsar Measurement Logo ">						
+			  </div>			
+		</div>
+
+	<!-- Featured -->
+		<div id="featured">
+		
+			<div class="container" >
+				<header>
+					<h2>Bluetooth Remote Access</h2>
+				</header>
+				<div class="row">
+					<section class="4u">					  
+
+						<span class="pennant"><span class="fa"></span></span>												
+						<div style=" padding: 30px; background-color: rgb(229, 255, 255);  width:360px; height:740px; border-style: solid; border-width: 1px; border-radius: 10px;  border-color: black;" />
+						
+						<br/>
+						<h3>Parameters</h3>
+						<a onclick="sendAT('ATrI')" class="button button-style1">FW ver</a><br/>
+						<a onclick="sendAT('AT+PAR=100,92')" class="button button-style1">Level</a><br/>						
+						<br/>
+						<div style=" padding: 0px; background-color: rgb(229, 255, 255);  width:320px; height:240px; border-style: solid; border-width: 1px; border-radius: 10px;  border-color: black;" />
+						
+						<input type="text" id="cmd" style="width='158px'; background-color:#C2EAE7;" onkeydown="wasEnter(this)" />
+						<a onclick="sendAT('AT+PAR=100,'+document.getElementById('cmd').value)" class="button button-style1">Read</a><br/>
+						
+						<input type="text" id="cmdw" style="width='158px'; background-color:#C2EAE7;" onkeydown="wasEnter(this)" />
+						<a onclick="sendAT('AT+PAR=200,'+document.getElementById('cmdw').value)" class="button button-style1">Write</a><br/>
+						
+					  										  
+								<br/>
+								<br/>
+								<br/>
+								<br/>
+								<a href="#" onclick="txtClear()" class="button button-style1">Clear</a>	
+					</section>
+
+					
+					<section class="4u">
+						<span class="pennant"> <span class="fa"></span></span>
+								<a onclick="ble_connect()" class="button button-style1">Scan for Pulsar Devices</a>
+						<br/><br/>
+						<textarea  padding="10px" id="log" rows="25" cols="50"  style="font-size='158px'; background-color:#C2EAE7;" ></textarea>								
+
+						<br/><br/><br/><br/><br/>
+					</section>
+					
+					<section class="4u">
+						<span class="pennant"><span class="fa"></span></span>												
+						<div style=" padding: 30px; background-color: rgb(229, 255, 255);  width:360px; height:740px; border-style: solid; border-width: 1px; border-radius: 10px;  border-color: black;" />
+						<br/>						
+						<h3></h3>
+					</section>
+				</div>
+			</div>
+		</div>
+		<div id="tweet">
+			<div class="container">
+				<section>
+					<blockquote>&copy; Pulsar Measurement Ltd. 2021 </blockquote>
+				</section>
+			</div>
+		</div>
+	</body>
+</html>
