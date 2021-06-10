@@ -1,12 +1,25 @@
-HTMLResult Skip Results Iframe
-EDIT ON
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
-<head>
+<head>  
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="x-apple-disable-message-reformatting">
-  <title></title>
+  <title>Pulsar Bluetooth Remote Access</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <!-- <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,700,500,900' rel='stylesheet' type='text/css'> -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="js/skel.min.js"></script>
+  <script src="js/skel-panels.min.js"></script>
+  <script src="js/init.js"></script>
+  <noscript>
+    <link rel="stylesheet" href="css/skel-noscript.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style-desktop.css" />
+  </noscript>
+  <link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
+       
   <style>
     table, td, div, h1, p {
       font-family: Arial, sans-serif;
@@ -34,8 +47,125 @@ EDIT ON
       }
     }
   </style>
+
+<script>
+
+  var inboundChar;
+  var outboundChar;
+  var device;
+  
+  // Define the CodeLess UUIDs 
+  var CODELESS_SVC_UUID 	= "866d3b04-e674-40dc-9c05-b7f91bec6e83";
+  var INBOUND_CHAR_UUID 	= "914f8fb9-e8cd-411d-b7d1-14594de45425";
+  var OUTBOUND_CHAR_UUID 	= "3bb535aa-50b2-4fbe-aa09-6b06dc59a404";
+  var CNTRL_CHAR_UUID		= "e2048b39-d4f9-4a45-9f25-1856c10d5639";
+
+  let options = {
+      filters: [
+        {name: 'PULS'},
+      {name: 'PULS-BT'},
+      {name: 'CLv2'},					
+      {name: 'ABCa'},
+      {name: 'ABC1'},
+      {name: 'PMBT'},
+      {name: 'CodeLess'},
+      {name: 'ExampleName'},
+        {services: [CODELESS_SVC_UUID]}
+        ],
+        optionalServices: [CODELESS_SVC_UUID]
+  }
+
+  // Display text in log field text area 
+  function log(text)
+  {
+    var textarea = document.getElementById('log');
+    textarea.value += "\n" + text;
+    textarea.scrollTop = textarea.scrollHeight;
+  }
+
+  // Incoming GATT notification was received
+  async function incomingData(event){
+    // Read data from BLE CodeLess peer
+    let readInValue = await outboundChar.readValue();
+    let decoder = new TextDecoder('utf-8');
+    // Log the incoming string (format slightly)
+    log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+  }
+
+  async function onDisconnected()
+  {
+    log("Bluetooth connection terminated!");
+  }
+
+  async function bleDisconnect()
+  {
+    log("Disconnecting");
+    if (device.gatt.connected) {
+        device.gatt.disconnect();
+    }
+    else {
+        log('> Bluetooth Device is already disconnected');
+    }
+  }
+
+  // Scan, connect and explore CodeLess BLE device
+  async function ble_connect() {
+    try {
+      // Define a scan filter and prepare for interaction with Codeless Service
+        log('Requesting Bluetooth Device...');
+        device = await navigator.bluetooth.requestDevice(options);
+        log('Name: ' + device.name);
+
+      device.addEventListener('gattserverdisconnected', onDisconnected);	
+      // Connect to device GATT and perform attribute discovery
+      server = await device.gatt.connect();
+      //log('1 \n');
+      const service = await server.getPrimaryService(CODELESS_SVC_UUID);
+      //log('2 \n');
+      inboundChar = await service.getCharacteristic(INBOUND_CHAR_UUID);
+      //log('3 \n');
+      outboundChar = await service.getCharacteristic(OUTBOUND_CHAR_UUID);
+      //log('4 \n');
+      const flowcontrolChar = await service.getCharacteristic(CNTRL_CHAR_UUID);
+      //log('5 \n');
+      await flowcontrolChar.startNotifications();
+      //log('6 \n');
+      flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
+      log('Ready to communicate!\n');
+    }
+    catch(error) {
+      log('Failed: ' + error);
+    }
+  }
+
+  // Send an AT command to the CodeLess BLE peer
+  async function sendAT(cmd) {
+    // Display the command in the log
+    log(' -> ' + cmd );
+    // Append an extra character as expected by CodeLess
+    var commandToSend = cmd + "\0";
+    try{
+      let encoder = new TextEncoder('utf-8');
+      // Send command via GATT Write request 
+      await inboundChar.writeValue(encoder.encode(commandToSend));
+    } 
+    catch(error) {
+      log('Failed: ' + error);
+    }
+  }
+
+  // If enter key was pressed by user while editing, send command immediately
+  function wasEnter(elem) {
+    if(event.key === 'Enter') {
+      sendAT(document.getElementById("cmd").value);
+    }
+  }
+
+</script>
+
 </head>
 <body style="margin:0;padding:0;word-spacing:normal;background-color:#939297;">
+<div id="header">
   <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#939297;">
     <table role="presentation" style="width:100%;border:none;border-spacing:0;">
       <tr>
@@ -48,74 +178,49 @@ EDIT ON
           <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
             <tr>
               <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;">
-                <a href="http://www.example.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/logo.png" width="165" alt="Logo" style="width:80%;max-width:165px;height:auto;border:none;text-decoration:none;color:#ffffff;"></a>
+                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-1.png" width="165" alt="Logo" style="width:100%;max-width:165px;height:auto;border:none;text-decoration:none;color:#ffffff;"></a>
               </td>
             </tr>
             <tr>
               <td style="padding:30px;background-color:#ffffff;">
-                <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Welcome to our responsive email!</h1>
-                <p style="margin:0;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, <a href="http://www.example.com/" style="color:#e50d70;text-decoration:underline;">eget accumsan dictum</a>, nisi libero ultricies ipsum, in posuere mauris neque at erat.</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:0;font-size:24px;line-height:28px;font-weight:bold;">
-                <a href="" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/1200x800-2.png" width="600" alt="" style="width:100%;height:auto;display:block;border:none;text-decoration:none;color:#363636;"></a>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:35px 30px 11px 30px;font-size:0;background-color:#ffffff;border-bottom:1px solid #f0f0f5;border-color:rgba(201,201,207,.35);">
-                <!--[if mso]>
-                <table role="presentation" width="100%">
-                <tr>
-                <td style="width:145px;" align="left" valign="top">
-                <![endif]-->
-                <div class="col-sml" style="display:inline-block;width:100%;max-width:145px;vertical-align:top;text-align:left;font-family:Arial,sans-serif;font-size:14px;color:#363636;">
-                  <img src="https://assets.codepen.io/210284/icon.png" width="115" alt="" style="width:80%;max-width:115px;margin-bottom:20px;">
-                </div>
-                <!--[if mso]>
-                </td>
-                <td style="width:395px;padding-bottom:20px;" valign="top">
-                <![endif]-->
-                <div class="col-lge" style="display:inline-block;width:100%;max-width:395px;vertical-align:top;padding-bottom:20px;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
-                  <p style="margin-top:0;margin-bottom:12px;">Nullam mollis sapien vel cursus fermentum. Integer porttitor augue id ligula facilisis pharetra. In eu ex et elit ultricies ornare nec ac ex. Mauris sapien massa, placerat non venenatis et, tincidunt eget leo.</p>
-                  <p style="margin-top:0;margin-bottom:18px;">Nam non ante risus. Vestibulum vitae eleifend nisl, quis vehicula justo. Integer viverra efficitur pharetra. Nullam eget erat nibh.</p>
-                  <p style="margin:0;"><a href="https://example.com/" style="background: #ff3884; text-decoration: none; padding: 10px 25px; color: #ffffff; border-radius: 4px; display:inline-block; mso-padding-alt:0;text-underline-color:#ff3884"><!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]--><span style="mso-text-raise:10pt;font-weight:bold;">Claim yours now</span><!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]--></a></p>
-                </div>
-                <!--[if mso]>
-                </td>
-                </tr>
+                <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Welcome to our responsive email!</h1>                		      
+                <table>
+                  <tr>
+                    <td>
+                      <button type="button" class="button button-style1" onclick="ble_connect()">
+                        Device Scan
+                      </button>
+                    </td>
+                    <td style="width:10%;"">
+
+                    </td>
+                    <td>
+                      <button type="button" class="button button-style1" onclick="bleDisconnect()">
+                        End Session
+                      </button>
+                    </td>
+                  </tr>
                 </table>
-                <![endif]-->
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:30px;font-size:24px;line-height:28px;font-weight:bold;background-color:#ffffff;border-bottom:1px solid #f0f0f5;border-color:rgba(201,201,207,.35);">
-                <a href="http://www.example.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/1200x800-1.png" width="540" alt="" style="width:100%;height:auto;border:none;text-decoration:none;color:#363636;"></a>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:30px;background-color:#ffffff;">
-                <p style="margin:0;">Duis sit amet accumsan nibh, varius tincidunt lectus. Quisque commodo, nulla ac feugiat cursus, arcu orci condimentum tellus, vel placerat libero sapien et libero. Suspendisse auctor vel orci nec finibus.</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:30px;text-align:center;font-size:12px;background-color:#404040;color:#cccccc;">
-                <p style="margin:0 0 8px 0;"><a href="http://www.facebook.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/facebook_1.png" width="40" height="40" alt="f" style="display:inline-block;color:#cccccc;"></a> <a href="http://www.twitter.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/twitter_1.png" width="40" height="40" alt="t" style="display:inline-block;color:#cccccc;"></a></p>
-                <p style="margin:0;font-size:14px;line-height:20px;">&reg; Someone, Somewhere 2021<br><a class="unsub" href="http://www.example.com/" style="color:#cccccc;text-decoration:underline;">Unsubscribe instantly</a></p>
+    <br/>
+    <br/>
+		
+		<textarea id="log" rows="20" cols="60" ></textarea>
+		<br/><br/><br/>
+		<button type="button" class="button button-style1" onclick="sendAT('ATrI')">
+			Send ATrI
+		</button>
+		<br/><br/>
+		<input type="text" id="cmd" onkeydown="wasEnter(this)">
+		<button type="button" class="button button-style1" onclick="sendAT(document.getElementById('cmd').value)">
+			Transmit Command
+		</button>   
               </td>
             </tr>
           </table>
-          <!--[if mso]>
-          </td>
-          </tr>
-          </table>
-          <![endif]-->
         </td>
       </tr>
     </table>
   </div>
+</div>
 </body>
 </html>
-
-
-Resources
