@@ -32,7 +32,11 @@
       }
     }
   </style>
-  
+    <noscript>
+        <link rel="stylesheet" href="css/skel-noscript.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style-desktop.css" />
+      </noscript>
 <script>
 
     var inboundChar;
@@ -166,22 +170,26 @@
             <tr>
               <td style="padding:30px;background-color:#ffffff;">
                 <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Bluetooth Remote Access</h1>                                
-                <table>
+                    <table>
                     <tr>
-                      <td>
-                        <button type="button" class="button button-style1" onclick="ble_connect()">
-                          Device Scan
-                        </button>
-                      </td>
-                      <td style="width:10%;"">
-  
-                      </td>
-                      <td>
-                        <button type="button" class="button button-style1" onclick="bleDisconnect()">
-                          End Session
-                        </button>
-                      </td>
+                      <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
+                      <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
+                    </tr>                    
+                  </table>
+                  <table>                    
+                    <tr>
+                            <textarea id="log" rows="20" cols="60" ></textarea>
                     </tr>
+                  </table>
+                  <table>
+                    <tr>                        
+                      <td><button type="button" class="button button-style1" onclick="sendAT(document.getElementById('cmd').value)">Send ATrI</button></td>                      
+
+                      <input type="text" id="cmd" onkeydown="wasEnter(this)">
+                      <button type="button" class="button button-style1" onclick="sendAT(document.getElementById('cmd').value)">
+                          Transmit Command
+                      </button>  
+                    </tr>                    
                   </table>
               </td>
             </tr>
@@ -194,11 +202,11 @@
               <td style="padding:35px 30px 11px 30px;font-size:0;background-color:#ffffff;border-bottom:1px solid #f0f0f5;border-color:rgba(201,201,207,.35);">            
                                
               </td>
-            </tr>            
+            </tr>
+            <tr></tr>            
             <tr>
               <td style="padding:30px;text-align:center;font-size:12px;background-color:#404040;color:#cccccc;">
-                <p style="margin:0 0 8px 0;"><a href="http://www.facebook.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/facebook_1.png" width="40" height="40" alt="f" style="display:inline-block;color:#cccccc;"></a> <a href="http://www.twitter.com/" style="text-decoration:none;"><img src="https://assets.codepen.io/210284/twitter_1.png" width="40" height="40" alt="t" style="display:inline-block;color:#cccccc;"></a></p>
-                <p style="margin:0;font-size:14px;line-height:20px;">&reg; Someone, Somewhere 2021<br><a class="unsub" href="http://www.example.com/" style="color:#cccccc;text-decoration:underline;">Unsubscribe instantly</a></p>
+                <p style="margin:0;font-size:14px;line-height:20px;">&copy; Pulsar Measurement 2021<br></p>
               </td>
             </tr>
           </table>
