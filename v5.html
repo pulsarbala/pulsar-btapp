@@ -78,19 +78,19 @@
 					device.addEventListener('gattserverdisconnected', onDisconnected);	
 					// Connect to device GATT and perform attribute discovery
 					server = await device.gatt.connect();
-					log('1 \n');
+					//log('1 \n');
 					const service = await server.getPrimaryService(CODELESS_SVC_UUID);
-					log('2 \n');
+					//log('2 \n');
 					inboundChar = await service.getCharacteristic(INBOUND_CHAR_UUID);
-					log('3 \n');
+					//log('3 \n');
 					outboundChar = await service.getCharacteristic(OUTBOUND_CHAR_UUID);
-					log('4 \n');
+					//log('4 \n');
 					const flowcontrolChar = await service.getCharacteristic(CNTRL_CHAR_UUID);
-					log('5 \n');
+					//log('5 \n');
 					await flowcontrolChar.startNotifications();
-					log('6 \n');
+					//log('6 \n');
 					flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-					// log('Ready to communicate!\n');
+					log('Ready to communicate!\n');
 				}
 				catch(error) {
 					log('Failed: ' + error);
