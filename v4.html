@@ -19,6 +19,31 @@
 			var OUTBOUND_CHAR_UUID 	= "3bb535aa-50b2-4fbe-aa09-6b06dc59a404";
 			var CNTRL_CHAR_UUID		= "e2048b39-d4f9-4a45-9f25-1856c10d5639";
 
+
+			let options = {
+  				filters: [
+				  	{name: 'PULS'},
+					{name: 'PULS-BT'},
+					{name: 'CLv2'},					
+					{name: 'ABCa'},
+					{name: 'ABC1'},
+					{name: 'PMBT'},					
+                    {name: 'Example1'},
+                    {name: 'Example2'},
+                    {name: 'Example3'},
+                    {name: 'Example4'},
+                    {name: 'Example5'},
+                    {name: 'Example6'},
+                    {name: 'Example7'},
+                    {name: 'Example8'},
+                    {name: 'Example9'},
+					{name: 'ExampleName'},
+    				{services: [CODELESS_SVC_UUID]}
+  					],
+  					optionalServices: [CODELESS_SVC_UUID]
+			}
+			
+
 			// Display text in log field text area 
 			function log(text)
 			{
@@ -55,12 +80,10 @@
 			// Scan, connect and explore CodeLess BLE device
 			async function ble_connect() {
 				try {
-					// Define a scan filter and prepare for interaction with Codeless Service
 					log('Requesting Bluetooth Device...');
-					device  = await navigator.bluetooth.requestDevice({
-					filters: [{name: ['CLv2','PULS','PULS-BT','PMBT','PULSARBT','CodeLess']}],
-					optionalServices: [CODELESS_SVC_UUID]
-					});	
+					device = await navigator.bluetooth.requestDevice(options);
+					log('Name: ' + device.name);
+
 					device.addEventListener('gattserverdisconnected', onDisconnected);	
 					// Connect to device GATT and perform attribute discovery
 					server = await device.gatt.connect();
