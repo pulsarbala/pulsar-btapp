@@ -151,6 +151,22 @@
 		<button type="button" onclick="sendAT('ATrI')">
 			Send ATrI
 		</button>
+		&nbsp; 	&nbsp; 
+<button type="button" onclick="sendAT('AT+PT=1')">
+	Enter PT
+</button>
+
+&nbsp; 	&nbsp;
+<button type="button" onclick="sendAT('TRACE ON')">
+	TRACE ON
+</button>
+
+&nbsp; 	&nbsp;
+<button type="button" onclick="sendAT('TRACE OFF')">
+	TRACE OFF
+</button>
+		
+		
 		<br/><br/>
 		<input type="text" id="cmd" onkeydown="wasEnter(this)">
 		<button type="button" onclick="sendAT(document.getElementById('cmd').value)">
