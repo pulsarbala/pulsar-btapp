@@ -6,6 +6,20 @@
 		<meta charset="UTF-8">
 		<title>Pulsar Bluetooth App</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			.button {
+			  background-color: #4CAF50;
+			  border: none;
+			  color: white;
+			  padding: 15px 32px;
+			  text-align: center;
+			  text-decoration: none;
+			  display: inline-block;
+			  font-size: 16px;
+			  margin: 4px 2px;
+			  cursor: pointer;
+			}
+			</style>
 
 		<script>
 
@@ -137,27 +151,27 @@
 
 
 		</p>
-		<button type="button" onclick="ble_connect()">
-			Click me to scan for CodeLess BLE devices
+		<button type="button" class="button" onclick="ble_connect()">
+			Start BT scan
 		</button>
 		<br/>
-		<button type="button" onclick="bleDisconnect()">
-			Click me to disconnect
+		<button type="button" class="button" onclick="bleDisconnect()">
+			Disconnect
 		</button>
 		<br/>
 		<br/>Log:<br/>
 		<textarea id="log" rows="20" cols="60" ></textarea>
 		<br/><br/><br/>
-		<button type="button" onclick="sendAT('ATrI')">
+		<button type="button" class="button" onclick="sendAT('ATrI')">
 			Send ATrI
 		</button>
 		&nbsp; 	&nbsp; 
-<button type="button" onclick="sendAT('AT+PT=1')">
+<button type="button" class="button" onclick="sendAT('AT+PT=1')">
 	Enter PT
 </button>
 
 &nbsp; 	&nbsp;
-<button type="button" onclick="sendAT('TRACE ON')">
+<button type="button" class="button" onclick="sendAT('TRACE ON')">
 	TRACE ON
 </button>
 
