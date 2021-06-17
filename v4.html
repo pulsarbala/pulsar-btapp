@@ -154,7 +154,7 @@
 		<button type="button" class="button" onclick="ble_connect()">
 			Start BT scan
 		</button>
-		<br/>
+		&nbsp; 	&nbsp; 
 		<button type="button" class="button" onclick="bleDisconnect()">
 			Disconnect
 		</button>
@@ -163,7 +163,7 @@
 		<textarea id="log" rows="20" cols="60" ></textarea>
 		<br/><br/><br/>
 		<button type="button" class="button" onclick="sendAT('ATrI')">
-			Send ATrI
+			Firmware Version
 		</button>
 		&nbsp; 	&nbsp; 
 <button type="button" class="button" onclick="sendAT('AT+PT=1')">
@@ -176,15 +176,15 @@
 </button>
 
 &nbsp; 	&nbsp;
-<button type="button" onclick="sendAT('TRACE OFF')">
+<button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
 	TRACE OFF
 </button>
 		
 		
 		<br/><br/>
 		<input type="text" id="cmd" onkeydown="wasEnter(this)">
-		<button type="button" onclick="sendAT(document.getElementById('cmd').value)">
-			Transmit Command
+		<button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
+			Send 
 		</button>
 
 	</body>
