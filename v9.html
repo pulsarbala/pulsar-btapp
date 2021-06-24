@@ -72,10 +72,13 @@
         {name: 'ABCa'},
         {name: 'ABC1'},
         {name: 'PMBT'},
-		{name: 'ABC1'},
-		{name: 'PULSARBT'},
-		{name: 'PULSAR-BT'},
-		{name: 'CodeLess'},		
+		    {name: 'ABC1'},
+		    {name: 'PULSARBT'},
+		    {name: 'PULSAR-BT'},
+		    {name: 'CodeLess'},
+        {name: 'MALV'},	
+        {name: 'MALVERNBT'},	
+        {name: 'MALVERN-BT'},
         {name: 'Example1'},
         {name: 'Example2'},
         {name: 'Example3'},
@@ -218,29 +221,35 @@
 				  		Enter PT
 			  			</button>
 		  				</td>
+              <td>
+                <button type="button"  class="button"  onclick="sendAT('AT+CLRBNDE=1')">
+                  CLR1
+                </button>
+              </td>
 						  </tr>
 						  <tr>
-						  <td>
-							<button type="button" class="button" onclick="sendAT('TRACE ON')">
-								TRACE ON
-							</button>
-						</td>
-						<td>
-							<button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
-								TRACE OFF
-							</button>
-						</td>						
-					</tr>
+						    <td>
+							    <button type="button" class="button" onclick="sendAT('TRACE ON')">
+								    TRACE ON
+							    </button>
+						    </td>
+						    <td>
+							    <button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
+								    TRACE OFF
+							    </button>
+						    </td>
+                <td>
+                  <button type="button"  class="button"  onclick="sendAT('AT+CLRBNDE=2')">
+                    CLR2
+                  </button>
+                </td>
+					    </tr>          
                     <tr>
-						<input type="text" id="cmd" onkeydown="wasEnter(this)">
-						<button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
-							Transmit Command
-						</button>  
-					  </tr>
-
-
-
-
+						          <input type="text" id="cmd" onkeydown="wasEnter(this)">
+						          <button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
+							          Transmit Command
+						          </button>  
+					          </tr>
                   </table>
               </td>
             </tr>
