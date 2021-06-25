@@ -5,14 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="x-apple-disable-message-reformatting">
   <title>Pulsar Bluetooth Remote Access</title>
-  <noscript>
-    <link rel="stylesheet" href="css/skel-noscript.css" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/style-desktop.css" />
-  </noscript>  
-	<script src="js/skel.min.js"></script>
-	<script src="js/skel-panels.min.js"></script>
-	<script src="js/init.js"></script>
   <style>
     table, td, div, h1, p {
       font-family: Arial, sans-serif;
@@ -76,16 +68,16 @@
         filters: [
         {name: 'PULS'},
         {name: 'PULS-BT'},
-        {name: 'CLv2'},
-        {name: 'MALVERNBT'},
-        {name: 'MALV'},
+        {name: 'CLv2'},					
         {name: 'ABCa'},
         {name: 'ABC1'},
         {name: 'PMBT'},
-		{name: 'ABC1'},
-		{name: 'PULSARBT'},
-		{name: 'PULSAR-BT'},
-		{name: 'CodeLess'},		
+		    {name: 'ABC1'},
+		    {name: 'PULSARBT'},
+		    {name: 'PULSAR-BT'},
+        {name: 'MALVERNBT'},
+        {name: 'MALV'},
+		    {name: 'CodeLess'},		
         {name: 'Example1'},
         {name: 'Example2'},
         {name: 'Example3'},
@@ -115,6 +107,7 @@
       let readInValue = await outboundChar.readValue();
       let decoder = new TextDecoder('utf-8');
       // Log the incoming string (format slightly)
+      log(" received data :"+readInValue);
       log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
     }
   
@@ -188,10 +181,8 @@
   </script>
     <link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
 </head>
-<body style="margin:0;padding:0;word-spacing:normal;">  
+<body style="margin:0;padding:0;word-spacing:normal;"></body>
   <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-    <div id="header">
-    <div class="image-bg">
     <table role="presentation" style="width:100%;border:none;border-spacing:0;">
       <tr>
         <td align="center" style="padding:0;">
@@ -203,9 +194,7 @@
           <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
             <tr>
               <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;">                
-                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;">
-                  <img src="./images/pulsarlogo-old.png"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#687e44;">
-                </a>
+                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-old.png"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#a4b38c;"></a>
               </td>
             </tr>
             <tr>
@@ -273,8 +262,6 @@
         </td>
       </tr>
     </table>
-  </div>
-</div>
   </div>
 </body>
 </html>
