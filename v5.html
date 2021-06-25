@@ -122,13 +122,14 @@
   
     async function bleDisconnect()
     {
-      log("Disconnecting");
+      // log("Disconnecting");
       if (device.gatt.connected) {
           device.gatt.disconnect();
       }
       else {
           log('> Bluetooth Device is already disconnected');
       }
+      log("Disconnected");
     }
   
     // Scan, connect and explore CodeLess BLE device
