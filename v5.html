@@ -57,6 +57,7 @@
     var inboundChar;
     var outboundChar;
     var device;
+    var rxdata;
     
     // Define the CodeLess UUIDs 
     var CODELESS_SVC_UUID 	= "866d3b04-e674-40dc-9c05-b7f91bec6e83";
@@ -107,8 +108,10 @@
       let readInValue = await outboundChar.readValue();
       let decoder = new TextDecoder('utf-8');
       // Log the incoming string (format slightly)
-      log(" received data :"+readInValue);
-      log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+      //log(" received data :"+readInValue);
+      log(decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+      rxdata=decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0','');
+      log('rcd:'+rxdata);
     }
   
     async function onDisconnected()
@@ -150,7 +153,7 @@
         await flowcontrolChar.startNotifications();
         //log('6 \n');
         flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-        log('Ready to communicate!\n');
+        // log('Ready to communicate!\n');
       }
       catch(error) {
         log('Failed: ' + error);
