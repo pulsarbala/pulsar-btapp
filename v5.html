@@ -109,9 +109,10 @@
       let decoder = new TextDecoder('utf-8');
       // Log the incoming string (format slightly)
       //log(" received data :"+readInValue);
-      log(decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
-      rxdata=decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0','');
-      log('rcd:'+rxdata);
+      //log(decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+      //rxdata=decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0','');
+      //log('rcd:'+rxdata);
+      log(decoder.decode(readInValue).replace('\r','\r').replace('\n','').replace('\0',''));
     }
   
     async function onDisconnected()
