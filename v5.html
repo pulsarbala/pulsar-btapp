@@ -124,6 +124,22 @@
       }
     }
   
+    async function bleLogin()
+    {
+      log(' Logging in to device -> ');
+      // Append an extra character as expected by CodeLess
+      var commandToSend = "AT+AUTH" + "\0";
+      try{
+        let encoder = new TextEncoder('utf-8'); 
+        await inboundChar.writeValue(encoder.encode(commandToSend));
+      } 
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
+     
+
+
     // Scan, connect and explore CodeLess BLE device
     async function ble_connect() {
       try {
@@ -201,6 +217,7 @@
                     <tr>
                       <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
                       <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
+                      <td><button type="button" class="button button-style1" onclick="bleLogin()">Login</button></td> 
                     </tr>                    
                   </table>
                   <table>                    
