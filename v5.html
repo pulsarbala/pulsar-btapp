@@ -128,7 +128,7 @@
     {
       log(' Logging in to device -> ');
       // Append an extra character as expected by CodeLess
-      var commandToSend = "AT+AUTH" + "\0";
+      var commandToSend = "AT+AUTH=123321" + "\0";
       try{
         let encoder = new TextEncoder('utf-8'); 
         await inboundChar.writeValue(encoder.encode(commandToSend));
@@ -137,7 +137,7 @@
         log('Failed: ' + error);
       }
     }
-     
+
 
 
     // Scan, connect and explore CodeLess BLE device
