@@ -130,8 +130,7 @@
     {
       log(' Logging in to device -> ');
       // Append an extra character as expected by CodeLess
-      var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";
-      alert(commandToSend);
+      var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";      
       try{
         let encoder = new TextEncoder('utf-8'); 
         await inboundChar.writeValue(encoder.encode(commandToSend));
