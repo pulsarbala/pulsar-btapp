@@ -32,6 +32,7 @@
       }
     }
   </style>
+  
   <style>
 	.button {
 	  background-color: #4CAF50;
@@ -42,6 +43,7 @@
 	  text-decoration: none;
 	  display: inline-block;
 	  font-size: 16px;
+    min-width: 10em;
 	  margin: 4px 2px;
 	  cursor: pointer;
 	}
@@ -163,7 +165,7 @@
         await flowcontrolChar.startNotifications();
         //log('6 \n');
         flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-        log('Ready!\n');
+        log('Enter PIN to continue.\n');
       }
       catch(error) {
         log('Failed: ' + error);
@@ -213,54 +215,53 @@
             <tr>
               <td style="padding:30px;background-color:#ffffff;">
                 <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Bluetooth Remote Access</h1>                                
-                    <table>
+                  <table>
                     <tr>
-                      <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
-                      <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
-                      <td><button type="button" class="button button-style1" onclick="bleLogin()">Login</button></td> 
-                    </tr>                    
+                        <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
+                        <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>
+                    </tr>
+                    <tr>
+                      <td><button type="button" class="button button-style1" onclick="bleLogin()"> PIN</button></td>
+                      <td><input type="password" id="pin" style="min-height: 3em; max-height: 6em;" onkeydown="wasEnter(this)"/></td>
+                    </tr>
                   </table>
                   <table>                    
-                    <tr>
-                            <textarea id="log" rows="20" cols="60" ></textarea>
-                    </tr>
-					<tr>
-						<td>
-					  		<button type="button" class="button" onclick="sendAT('ATrI')">
-						  		Version
-					  		</button>
-				  		</td>
-				  		<td>
-			  			<button type="button" class="button" onclick="sendAT('AT+PT=1')">
-				  		Enter PT
-			  			</button>
-		  				</td>
-						  </tr>
-						  <tr>
-						  <td>
-							<button type="button" class="button" onclick="sendAT('TRACE ON')">
-								TRACE ON
-							</button>
-						</td>
-						<td>
-							<button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
-								TRACE OFF
-							</button>
-						</td>						
-					</tr>
-                    <tr>
-						<input type="text" id="cmd" onkeydown="wasEnter(this)">
-						<button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
-							Transmit Command
-						</button>  
-					  </tr>
-
-
-
-
+                      <tr>
+                        <textarea id="log" rows="20" cols="60" readonly></textarea>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('ATrI')">
+                            Version
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('AT+PT=1')">
+                            Enter PT
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('TRACE ON')">
+                            TRACE ON
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
+                            TRACE OFF
+                          </button>
+                        </td>						
+                      </tr>
+                      <tr>
+                        <input type="text" id="cmd" style=" font-size:15px; min-height: 3em; max-height: 6em;" onkeydown="wasEnter(this)" />
+                        <button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
+                              Transmit Command
+                        </button>  
+                      </tr>
                   </table>
               </td>
-            </tr>
+          </tr>
          
             <tr>
               <td style="padding:30px;text-align:center;font-size:12px;background-color:#d1c6c6;color:#2e2323;">
