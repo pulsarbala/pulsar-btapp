@@ -74,10 +74,10 @@
         {name: 'ABCa'},
         {name: 'ABC1'},
         {name: 'PMBT'},
-		{name: 'ABC1'},
-		{name: 'PULSARBT'},
-		{name: 'PULSAR-BT'},
-		{name: 'CodeLess'},		
+		    {name: 'ABC1'},
+		    {name: 'PULSARBT'},
+		    {name: 'PULSAR-BT'},
+		    {name: 'CodeLess'},		
         {name: 'Example1'},
         {name: 'Example2'},
         {name: 'Example3'},
@@ -130,7 +130,8 @@
     {
       log(' Logging in to device -> ');
       // Append an extra character as expected by CodeLess
-      var commandToSend = "AT+AUTH=123321" + "\0";
+      var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";
+      alert(commandToSend);
       try{
         let encoder = new TextEncoder('utf-8'); 
         await inboundChar.writeValue(encoder.encode(commandToSend));
@@ -193,6 +194,18 @@
         sendAT(document.getElementById("cmd").value);
       }
     }
+
+    function wasPEnter(elem) {
+      if(event.key === 'Enter') {        
+        if( document.getElementById("pin").value === ""){          
+          log('PIN cannot be empty');
+          return;
+        }
+        bleLogin();
+      }
+    }
+
+
   </script>
     <link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
 </head>
@@ -208,7 +221,7 @@
           <![endif]-->
           <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
             <tr>
-              <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;">                
+              <td style="text-align:center;">
                 <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-old.png"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#a4b38c;"></a>
               </td>
             </tr>
@@ -221,8 +234,9 @@
                         <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>
                     </tr>
                     <tr>
-                      <td><button type="button" class="button button-style1" onclick="bleLogin()"> PIN</button></td>
-                      <td><input type="password" id="pin" style="min-height: 3em; max-height: 6em;" onkeydown="wasEnter(this)"/></td>
+                      <!-- <td><button type="label" class="button button-style1" onclick="bleLogin()">Enter PIN</button></td> -->
+                      <td><label> Enter PIN (6 digits) </label></td>
+                      <td><input type="password" id="pin" style="padding:5px 5px 5x 10px; min-height: 3em; max-height: 6em;" onkeydown="wasPEnter(this)"/></td>
                     </tr>
                   </table>
                   <table>                    
