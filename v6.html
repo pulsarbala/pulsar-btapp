@@ -1,177 +1,297 @@
 <!DOCTYPE html>
-<html lang="en-US">
-	
-	<head>
-		
-		<meta charset="UTF-8">
-		<title>Pulsar Bluetooth App</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Pulsar Bluetooth Remote Access</title>
+  <style>
+    table, td, div, h1, p {
+      font-family: Arial, sans-serif;
+    }
+    @media screen and (max-width: 530px) {
+      .unsub {
+        display: block;
+        padding: 8px;
+        margin-top: 14px;
+        border-radius: 6px;
+        background-color: #f8eded;
+        text-decoration: none !important;
+        font-weight: bold;
+      }
+      .col-lge {
+        max-width: 100% !important;
+      }
+    }
+    @media screen and (min-width: 531px) {
+      .col-sml {
+        max-width: 27% !important;
+      }
+      .col-lge {
+        max-width: 73% !important;
+      }
+    }
+  </style>
+  
+  <style>
+	.button {
+	  background-color: #4CAF50;
+	  border: none;
+	  color: white;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+    min-width: 10em;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	}
+	</style>
 
-		<script>
+    <noscript>
+        <link rel="stylesheet" href="css/skel-noscript.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/style-desktop.css" />
+      </noscript>
+<script>
 
-			var inboundChar;
-			var outboundChar;
-			var device;
-			
-			// Define the CodeLess UUIDs 
-			var CODELESS_SVC_UUID 	= "866d3b04-e674-40dc-9c05-b7f91bec6e83";
-			var INBOUND_CHAR_UUID 	= "914f8fb9-e8cd-411d-b7d1-14594de45425";
-			var OUTBOUND_CHAR_UUID 	= "3bb535aa-50b2-4fbe-aa09-6b06dc59a404";
-			var CNTRL_CHAR_UUID		= "e2048b39-d4f9-4a45-9f25-1856c10d5639";
-
-			let options = {
-  				filters: [
-				  	{name: 'PULS'},
-					{name: 'ABC1'},
-					{name: 'PULSARBT'},
-					{name: 'PULSAR-BT'},
-					{name: 'PULS-BT'},
-					{name: 'CLv2'},					
-					{name: 'ABCa'},
-					{name: 'ABC1'},
-					{name: 'PMBT'},					
-                    {name: 'Example1'},
-                    {name: 'Example2'},
-                    {name: 'Example3'},
-                    {name: 'Example4'},
-                    {name: 'Example5'},
-                    {name: 'Example6'},
-                    {name: 'Example7'},
-                    {name: 'Example8'},
-                    {name: 'Example9'},
-					{name: 'ExampleName'},
-    				{services: [CODELESS_SVC_UUID]}
-  					],
-  					optionalServices: [CODELESS_SVC_UUID]
-			}
-			
-
-			// Display text in log field text area 
-			function log(text)
-			{
-				var textarea = document.getElementById('log');
-				textarea.value += "\n" + text;
-				textarea.scrollTop = textarea.scrollHeight;
-			}
-
-			// Incoming GATT notification was received
-			async function incomingData(event){
-				// Read data from BLE CodeLess peer
-				let readInValue = await outboundChar.readValue();
-				let decoder = new TextDecoder('utf-8');
-				// Log the incoming string (format slightly)
-				log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
-			}
-
-			async function onDisconnected()
-			{
-				log("Bluetooth connection terminated!");
-			}
-
-			async function bleDisconnect()
-			{
-				log("Disconnecting");
-				if (device.gatt.connected) {
-				    device.gatt.disconnect();
-				}
-				else {
-				    log('> Bluetooth Device is already disconnected');
-				}
-			}
-
-			// Scan, connect and explore CodeLess BLE device
-			async function ble_connect() {
-				try {
-					log('Requesting Bluetooth Device...');
-					device = await navigator.bluetooth.requestDevice(options);
-					log('Name: ' + device.name);
-
-					device.addEventListener('gattserverdisconnected', onDisconnected);	
-					// Connect to device GATT and perform attribute discovery
-					server = await device.gatt.connect();
-					const service = await server.getPrimaryService(CODELESS_SVC_UUID);
-					inboundChar = await service.getCharacteristic(INBOUND_CHAR_UUID);
-					outboundChar = await service.getCharacteristic(OUTBOUND_CHAR_UUID);
-					const flowcontrolChar = await service.getCharacteristic(CNTRL_CHAR_UUID);
-					// Subscribe to notifications
-					await flowcontrolChar.startNotifications();
-					flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-					log('Ready to communicate!\n');
-				}
-				catch(error) {
-					log('Failed: ' + error);
-				}
-			}
-
-			// Send an AT command to the CodeLess BLE peer
-			async function sendAT(cmd) {
-				// Display the command in the log
-				log(' -> ' + cmd );
-				// Append an extra character as expected by CodeLess
-				var commandToSend = cmd + "\0";
-				try{
-					let encoder = new TextEncoder('utf-8');
-					// Send command via GATT Write request 
-					await inboundChar.writeValue(encoder.encode(commandToSend));
-				} 
-				catch(error) {
-					log('Failed: ' + error);
-				}
-			}
-
-			// If enter key was pressed by user while editing, send command immediately
-			function wasEnter(elem) {
-				if(event.key === 'Enter') {
-					sendAT(document.getElementById("cmd").value);
-				}
-			}
-
-		</script>
-
-	</head>
-
-	<body>
-
-		<h1>Pulsar BT App:</h1>
-		<p>
+    var inboundChar;
+    var outboundChar;
+    var device;
+    
+    // Define the CodeLess UUIDs 
+    var CODELESS_SVC_UUID 	= "866d3b04-e674-40dc-9c05-b7f91bec6e83";
+    var INBOUND_CHAR_UUID 	= "914f8fb9-e8cd-411d-b7d1-14594de45425";
+    var OUTBOUND_CHAR_UUID 	= "3bb535aa-50b2-4fbe-aa09-6b06dc59a404";
+    var CNTRL_CHAR_UUID		= "e2048b39-d4f9-4a45-9f25-1856c10d5639";
+  
+    let options = {
+        filters: [
+        {name: 'PULS'},
+        {name: 'PULS-BT'},
+        {name: 'CLv2'},					
+        {name: 'ABCa'},
+        {name: 'ABC1'},
+        {name: 'PMBT'},
+		    {name: 'ABC1'},
+		    {name: 'PULSARBT'},
+		    {name: 'PULSAR-BT'},
+		    {name: 'CodeLess'},		
+        {name: 'Example1'},
+        {name: 'Example2'},
+        {name: 'Example3'},
+        {name: 'Example4'},
+        {name: 'Example5'},
+        {name: 'Example6'},
+        {name: 'Example7'},
+        {name: 'Example8'},
+        {name: 'Example9'},
+        {name: 'CodeLess'},        
+        {services: [CODELESS_SVC_UUID]}
+        ],
+        optionalServices: [CODELESS_SVC_UUID]
+    }
+  
+    // Display text in log field text area 
+    function log(text)
+    {
+      var textarea = document.getElementById('log');
+      textarea.value += "\n" + text;
+      textarea.scrollTop = textarea.scrollHeight;
+    }
+  
+    // Incoming GATT notification was received
+    async function incomingData(event){
+      // Read data from BLE CodeLess peer
+      let readInValue = await outboundChar.readValue();
+      let decoder = new TextDecoder('utf-8');
+      // Log the incoming string (format slightly)
+      log(" <- " + decoder.decode(readInValue).replace('\r','\r <- ').replace('\n','').replace('\0',''));
+    }
+  
+    async function onDisconnected()
+    {
+      log("Bluetooth connection terminated!");
+    }
+  
+    async function bleDisconnect()
+    {
+      log("Disconnecting");
+      if (device.gatt.connected) {
+          device.gatt.disconnect();
+      }
+      else {
+          log('> Bluetooth Device is already disconnected');
+      }
+    }
+  
+    async function bleLogin()
+    {
+      log(' Logging in to device -> ');
+      // Append an extra character as expected by CodeLess
+      //var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";
+	  var commandToSend = "AT+AUTH=123321";
+      document.getElementById("pin").innerHTML="";
+      try{
+        let encoder = new TextEncoder('utf-8'); 
+        await inboundChar.writeValue(encoder.encode(commandToSend));
+      } 
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
 
 
-		</p>
-		<button type="button" onclick="ble_connect()">
-			Click me to scan for CodeLess BLE devices
-		</button>
-		<br/>
-		<button type="button" onclick="bleDisconnect()">
-			Click me to disconnect
-		</button>
-		<br/>
-		<br/>Log:<br/>
-		<textarea id="log" rows="20" cols="60" ></textarea>
-		<br/><br/><br/>
-		<button type="button" onclick="sendAT('ATrI')">
-			Send ATrI
-		</button>
 
-&nbsp; 	&nbsp; 
-<button type="button" onclick="sendAT('AT+PT=1')">
-	Enter PT
-</button>
+    // Scan, connect and explore CodeLess BLE device
+    async function ble_connect() {
+      try {
+        // Define a scan filter and prepare for interaction with Codeless Service
+          log('Requesting Bluetooth Device...');
+          device = await navigator.bluetooth.requestDevice(options);
+          log('Name: ' + device.name);
+  
+        device.addEventListener('gattserverdisconnected', onDisconnected);	
+        // Connect to device GATT and perform attribute discovery
+        server = await device.gatt.connect();
+        //log('1 \n');
+        const service = await server.getPrimaryService(CODELESS_SVC_UUID);
+        //log('2 \n');
+        inboundChar = await service.getCharacteristic(INBOUND_CHAR_UUID);
+        //log('3 \n');
+        outboundChar = await service.getCharacteristic(OUTBOUND_CHAR_UUID);
+        //log('4 \n');
+        const flowcontrolChar = await service.getCharacteristic(CNTRL_CHAR_UUID);
+        //log('5 \n');
+        await flowcontrolChar.startNotifications();
+        //log('6 \n');
+        flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
+        log('Enter PIN to continue.\n');
+      }
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
+  
+    // Send an AT command to the CodeLess BLE peer
+    async function sendAT(cmd) {
+      // Display the command in the log
+      log(' -> ' + cmd );
+      // Append an extra character as expected by CodeLess
+      var commandToSend = cmd + "\0";
+      try{
+        let encoder = new TextEncoder('utf-8');
+        // Send command via GATT Write request 
+        await inboundChar.writeValue(encoder.encode(commandToSend));
+      } 
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
+    // If enter key was pressed by user while editing, send command immediately
+    function wasEnter(elem) {
+      if(event.key === 'Enter') {
+        sendAT(document.getElementById("cmd").value);
+      }
+    }
 
-&nbsp; 	&nbsp;
-<button type="button" onclick="sendAT('TRACE ON')">
-	TRACE ON
-</button>
+    function wasPEnter(elem) {
+      if(event.key === 'Enter') {        
+        if( document.getElementById("pin").value === ""){          
+          log('PIN cannot be empty');
+          return;
+        }
+        document.getElementById("pin").innerHTML="";
+        bleLogin();
+      }
+    }
 
-&nbsp; 	&nbsp;
-<button type="button" onclick="sendAT('TRACE OFF')">
-	TRACE OFF
-</button>
 
-		<br/><br/>
-		<input type="text" id="cmd" onkeydown="wasEnter(this)">
-		<button type="button" onclick="sendAT(document.getElementById('cmd').value)">
-			Transmit Command
-		</button>
-	</body>
-
+  </script>
+    <link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
+</head>
+<body style="margin:0;padding:0;word-spacing:normal;"></body>
+  <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+    <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+      <tr>
+        <td align="center" style="padding:0;">
+          <!--[if mso]>
+          <table role="presentation" align="center" style="width:600px;">
+          <tr>
+          <td>
+          <![endif]-->
+          <table role="presentation" style="height:94%; max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
+            <tr>
+              <td style="height:85%; text-align:center;">
+                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-old.png"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#a4b38c;"></a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px;background-color:#ffffff;">
+                <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Bluetooth Remote Access</h1>                                
+                  <table>
+                    <tr>
+                        <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
+                        <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>
+                    </tr>
+                    <tr>
+                      <td><button type="label" class="button button-style1" onclick="bleLogin()">Login</button></td>
+                      <td><label> Enter PIN (6 digits) </label></td>
+                      <td><input type="password" id="pin" style="padding:5px 5px 5x 10px; min-height: 3em; max-height: 6em;" onkeydown="wasPEnter(this)"/></td>
+                    </tr>
+                  </table>
+                  <table>                    
+                      <tr>
+                        <textarea id="log" rows="20" cols="60" readonly></textarea>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('ATrI')">
+                            Version
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('AT+PT=1')">
+                            Enter PT
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('AT+RSSI')">
+                            RSSI
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
+                            TRACE OFF
+                          </button>
+                        </td>						
+                      </tr>
+            
+                  </table>
+              </td>
+          </tr>
+          </table>
+          <br/>
+          <br/>
+          <br/>
+          <table role="presentation" style="width:100%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
+            <tr>
+              <td style="padding:30px;text-align:center;font-size:12px;background-color:#d1c6c6;color:#2e2323;">
+                <p style="margin:0;font-size:14px;line-height:20px;">&copy; Pulsar Measurement 2021<br></p>
+              </td>
+            </tr>
+          </table>
+          <!--[if mso]>
+          </td>
+          </tr>
+          </table>
+          <![endif]-->
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
 </html>
