@@ -126,12 +126,12 @@
       }
     }
   
-    async function bleLogin()
+	async function bleLogin()
     {
       log(' Logging in to device -> ');
       // Append an extra character as expected by CodeLess
       //var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";
-	  var commandToSend = "AT+AUTH=123321";
+	  var commandToSend = "AT+AUTH=123321"+ "\0";
       document.getElementById("pin").innerHTML="";
       try{
         let encoder = new TextEncoder('utf-8'); 
