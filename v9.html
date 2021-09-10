@@ -72,13 +72,10 @@
         {name: 'ABCa'},
         {name: 'ABC1'},
         {name: 'PMBT'},
-		    {name: 'ABC1'},
-		    {name: 'PULSARBT'},
-		    {name: 'PULSAR-BT'},
-		    {name: 'CodeLess'},
-        {name: 'MALV'},	
-        {name: 'MALVERNBT'},	
-        {name: 'MALVERN-BT'},
+		{name: 'ABC1'},
+		{name: 'PULSARBT'},
+		{name: 'PULSAR-BT'},
+		{name: 'CodeLess'},		
         {name: 'Example1'},
         {name: 'Example2'},
         {name: 'Example3'},
@@ -150,13 +147,29 @@
         await flowcontrolChar.startNotifications();
         //log('6 \n');
         flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-        //log('Ready to communicate!\n');
+        log('Ready to communicate!\n');
       }
       catch(error) {
         log('Failed: ' + error);
       }
     }
-  
+  // Send an AT command to the CodeLess BLE peer
+  async function sendATL(cmd) {
+      // Display the command in the log
+      log(' -> Logging ...'   );
+      // Append an extra character as expected by CodeLess
+      var commandToSend = cmd + "\0";
+      try{
+        let encoder = new TextEncoder('utf-8');
+        // Send command via GATT Write request 
+        await inboundChar.writeValue(encoder.encode(commandToSend));
+      } 
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
+
+    
     // Send an AT command to the CodeLess BLE peer
     async function sendAT(cmd) {
       // Display the command in the log
@@ -194,7 +207,7 @@
           <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
             <tr>
               <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;">                
-                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-old.png"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#a4b38c;"></a>
+                <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-1.png"  alt="Logo" style="width:100%;max-width:165px;height:auto;border:none;text-decoration:none;color:#a4b38c;"></a>
               </td>
             </tr>
             <tr>
@@ -204,6 +217,7 @@
                     <tr>
                       <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
                       <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
+                      <td><button type="button" class="button button-style1" onclick="sendATL('AT+AUTH=123321')">Test-Login</button></td>                      
                     </tr>                    
                   </table>
                   <table>                    
@@ -221,35 +235,29 @@
 				  		Enter PT
 			  			</button>
 		  				</td>
-              <td>
-                <button type="button"  class="button"  onclick="sendAT('AT+CLRBNDE=1')">
-                  CLR1
-                </button>
-              </td>
 						  </tr>
 						  <tr>
-						    <td>
-							    <button type="button" class="button" onclick="sendAT('TRACE ON')">
-								    TRACE ON
-							    </button>
-						    </td>
-						    <td>
-							    <button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
-								    TRACE OFF
-							    </button>
-						    </td>
-                <td>
-                  <button type="button"  class="button"  onclick="sendAT('AT+CLRBNDE=2')">
-                    CLR2
-                  </button>
-                </td>
-					    </tr>          
+						  <td>
+							<button type="button" class="button" onclick="sendAT('TRACE ON')">
+								TRACE ON
+							</button>
+						</td>
+						<td>
+							<button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
+								TRACE OFF
+							</button>
+						</td>						
+					</tr>
                     <tr>
-						          <input type="text" id="cmd" onkeydown="wasEnter(this)">
-						          <button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
-							          Transmit Command
-						          </button>  
-					          </tr>
+						<input type="text" id="cmd" onkeydown="wasEnter(this)">
+						<button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
+							Transmit Command
+						</button>  
+					  </tr>
+
+
+
+
                   </table>
               </td>
             </tr>
