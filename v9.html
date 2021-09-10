@@ -32,6 +32,7 @@
       }
     }
   </style>
+  
   <style>
 	.button {
 	  background-color: #4CAF50;
@@ -42,6 +43,7 @@
 	  text-decoration: none;
 	  display: inline-block;
 	  font-size: 16px;
+    min-width: 10em;
 	  margin: 4px 2px;
 	  cursor: pointer;
 	}
@@ -72,10 +74,10 @@
         {name: 'ABCa'},
         {name: 'ABC1'},
         {name: 'PMBT'},
-		{name: 'ABC1'},
-		{name: 'PULSARBT'},
-		{name: 'PULSAR-BT'},
-		{name: 'CodeLess'},		
+		    {name: 'ABC1'},
+		    {name: 'PULSARBT'},
+		    {name: 'PULSAR-BT'},
+		    {name: 'CodeLess'},		
         {name: 'Example1'},
         {name: 'Example2'},
         {name: 'Example3'},
@@ -124,6 +126,23 @@
       }
     }
   
+    async function bleLogin()
+    {
+      log(' Logging in to device -> ');
+      // Append an extra character as expected by CodeLess
+      var commandToSend = "AT+AUTH=" +document.getElementById("pin").value + "\0";
+      document.getElementById("pin").innerHTML="";
+      try{
+        let encoder = new TextEncoder('utf-8'); 
+        await inboundChar.writeValue(encoder.encode(commandToSend));
+      } 
+      catch(error) {
+        log('Failed: ' + error);
+      }
+    }
+
+
+
     // Scan, connect and explore CodeLess BLE device
     async function ble_connect() {
       try {
@@ -147,29 +166,13 @@
         await flowcontrolChar.startNotifications();
         //log('6 \n');
         flowcontrolChar.addEventListener('characteristicvaluechanged', incomingData);
-        log('Ready to communicate!\n');
+        log('Enter PIN to continue.\n');
       }
       catch(error) {
         log('Failed: ' + error);
       }
     }
-  // Send an AT command to the CodeLess BLE peer
-  async function sendATL(cmd) {
-      // Display the command in the log
-      log(' -> Logging ...'   );
-      // Append an extra character as expected by CodeLess
-      var commandToSend = cmd + "\0";
-      try{
-        let encoder = new TextEncoder('utf-8');
-        // Send command via GATT Write request 
-        await inboundChar.writeValue(encoder.encode(commandToSend));
-      } 
-      catch(error) {
-        log('Failed: ' + error);
-      }
-    }
-
-    
+  
     // Send an AT command to the CodeLess BLE peer
     async function sendAT(cmd) {
       // Display the command in the log
@@ -191,6 +194,19 @@
         sendAT(document.getElementById("cmd").value);
       }
     }
+
+    function wasPEnter(elem) {
+      if(event.key === 'Enter') {        
+        if( document.getElementById("pin").value === ""){          
+          log('PIN cannot be empty');
+          return;
+        }
+        document.getElementById("pin").innerHTML="";
+        bleLogin();
+      }
+    }
+
+
   </script>
     <link rel="icon" type="image/x-icon" href="./images/pulsaricon-rgb64_2.png" />
 </head>
@@ -204,66 +220,66 @@
           <tr>
           <td>
           <![endif]-->
-          <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
+          <table role="presentation" style="height:94%; max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
             <tr>
-              <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;">                
+              <td style="height:85%; text-align:center;">
                 <div class="logo">
                   <a href="http://www.pulsarmeasurement.com" style="text-decoration:none;"><img src="./images/pulsarlogo-old.svg"  alt="Logo" style="width:294px;height:128px;border:none;text-decoration:none;color:#a4b38c;"></a>                  
               </div>
+                
               </td>
             </tr>
             <tr>
               <td style="padding:30px;background-color:#ffffff;">
                 <h1 style="margin-top:0;margin-bottom:16px;font-size:26px;line-height:32px;font-weight:bold;letter-spacing:-0.02em;">Bluetooth Remote Access</h1>                                
-                    <table>
+                  <table>
                     <tr>
-                      <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
-                      <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
-                      <td><button type="button" class="button button-style1" onclick="sendATL('AT+AUTH=123321')">Test-Login</button></td>                      
-                    </tr>                    
+                        <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
+                        <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>
+                    </tr>
+                    <tr>
+                      <!-- <td><button type="label" class="button button-style1" onclick="bleLogin()">Enter PIN</button></td> -->
+                      <td><label> Enter PIN (6 digits) </label></td>
+                      <td><input type="password" id="pin" style="padding:5px 5px 5x 10px; min-height: 3em; max-height: 6em;" onkeydown="wasPEnter(this)"/></td>
+                    </tr>
                   </table>
                   <table>                    
-                    <tr>
-                            <textarea id="log" rows="20" cols="60" ></textarea>
-                    </tr>
-					<tr>
-						<td>
-					  		<button type="button" class="button" onclick="sendAT('ATrI')">
-						  		Version
-					  		</button>
-				  		</td>
-				  		<td>
-			  			<button type="button" class="button" onclick="sendAT('AT+PT=1')">
-				  		Enter PT
-			  			</button>
-		  				</td>
-						  </tr>
-						  <tr>
-						  <td>
-							<button type="button" class="button" onclick="sendAT('TRACE ON')">
-								TRACE ON
-							</button>
-						</td>
-						<td>
-							<button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
-								TRACE OFF
-							</button>
-						</td>						
-					</tr>
-                    <tr>
-						<input type="text" id="cmd" onkeydown="wasEnter(this)">
-						<button type="button" class="button" onclick="sendAT(document.getElementById('cmd').value)">
-							Transmit Command
-						</button>  
-					  </tr>
-
-
-
-
+                      <tr>
+                        <textarea id="log" rows="20" cols="60" readonly></textarea>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('ATrI')">
+                            Version
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('AT+PT=1')">
+                            Enter PT
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button type="button" class="button" onclick="sendAT('TRACE ON')">
+                            TRACE ON
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button"  class="button"  onclick="sendAT('TRACE OFF')">
+                            TRACE OFF
+                          </button>
+                        </td>						
+                      </tr>
+            
                   </table>
               </td>
-            </tr>
-         
+          </tr>
+          </table>
+          <br/>
+          <br/>
+          <br/>
+          <table role="presentation" style="width:100%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;">
             <tr>
               <td style="padding:30px;text-align:center;font-size:12px;background-color:#d1c6c6;color:#2e2323;">
                 <p style="margin:0;font-size:14px;line-height:20px;">&copy; Pulsar Measurement 2021<br></p>
