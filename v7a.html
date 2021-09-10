@@ -153,23 +153,7 @@
         log('Failed: ' + error);
       }
     }
-  // Send an AT command to the CodeLess BLE peer
-  async function sendATL(cmd) {
-      // Display the command in the log
-      log(' -> Logging ...'   );
-      // Append an extra character as expected by CodeLess
-      var commandToSend = cmd + "\0";
-      try{
-        let encoder = new TextEncoder('utf-8');
-        // Send command via GATT Write request 
-        await inboundChar.writeValue(encoder.encode(commandToSend));
-      } 
-      catch(error) {
-        log('Failed: ' + error);
-      }
-    }
-
-    
+  
     // Send an AT command to the CodeLess BLE peer
     async function sendAT(cmd) {
       // Display the command in the log
@@ -217,7 +201,7 @@
                     <tr>
                       <td><button type="button" class="button button-style1" onclick="ble_connect()">Device Scan</button></td>
                       <td><button type="button" class="button button-style1" onclick="bleDisconnect()">End Session</button></td>                      
-                      <td><button type="button" class="button button-style1" onclick="sendATL('AT+AUTH=123321')">Test-Login</button></td>                      
+                      <td><button type="button" class="button button-style1" onclick="sendAT('AT+AUTH=123321')">Login</button></td>                      
                     </tr>                    
                   </table>
                   <table>                    
