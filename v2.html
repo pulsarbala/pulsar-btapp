@@ -105,35 +105,6 @@
 
 	</head>
 
-	<body>
 
-		<h1>CodeLess:</h1>
-		<p>
-			Load the Dialog CodeLess firmware on a development kit and use this Web Page to send and receive commands via Web Bluetooth.<br/>
-			Additional information: 
-			<a href='https://www.dialog-semiconductor.com/products/smartbondtm-codeless-commands'>CodeLess AT Commands</a><br/>
-			Right click to view the source code of this implementation.
-		</p>
-		<button type="button" onclick="ble_connect()">
-			Click me to scan for CodeLess BLE devices
-		</button>
-		<br/>
-		<button type="button" onclick="bleDisconnect()">
-			Click me to disconnect
-		</button>
-		<br/>
-		<br/>Log:<br/>
-		<textarea id="log" rows="20" cols="60" ></textarea>
-		<br/><br/><br/>
-		<button type="button" onclick="sendAT('ATrI')">
-			Send ATrI
-		</button>
-		<br/><br/>
-		<input type="text" id="cmd" onkeydown="wasEnter(this)">
-		<button type="button" onclick="sendAT(document.getElementById('cmd').value)">
-			Transmit Command
-		</button>
-
-	</body>
 
 </html>
